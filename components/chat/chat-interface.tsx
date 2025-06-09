@@ -1,17 +1,19 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
 import { ChatInput } from './chat-input';
 import { useChat } from '@/hooks/use-chat';
 import { useAppStore } from '@/lib/store/app-store';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Loader2 } from 'lucide-react';
+import { Message } from '@/lib/supabase/types';
 
 export function ChatInterface() {
   const { currentProject } = useAppStore();
   const { messages, isGenerating, sendMessage } = useChat(currentProject?.id || null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
@@ -23,6 +25,17 @@ export function ChatInterface() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (currentProject) {
+      setIsLoading(true);
+      // Simulate loading time for better UX
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentProject]);
+
   if (!currentProject) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -30,6 +43,17 @@ export function ChatInterface() {
           <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <h3 className="text-lg font-medium mb-2">No Project Selected</h3>
           <p className="text-sm">Select a project from the sidebar to start chatting</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <Loader2 className="h-12 w-12 mx-auto mb-4 animate-spin" />
+          <p className="text-sm">Loading messages...</p>
         </div>
       </div>
     );
@@ -57,13 +81,13 @@ export function ChatInterface() {
               </div>
             </div>
           ) : (
-            messages.map((message) => (
+            messages.map((message: Message) => (
               <ChatMessage key={message.id} message={message} />
             ))
           )}
-          
+
           {isGenerating && (
-            <ChatMessage 
+            <ChatMessage
               message={{
                 id: 'generating',
                 project_id: currentProject.id,
@@ -76,7 +100,7 @@ export function ChatInterface() {
           )}
         </div>
       </ScrollArea>
-      
+
       <div className="border-t p-4">
         <div className="max-w-4xl mx-auto">
           <ChatInput onSendMessage={sendMessage} disabled={isGenerating} />

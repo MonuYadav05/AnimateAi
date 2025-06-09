@@ -26,7 +26,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           {currentAnimation && (
             <div className="flex items-center gap-2 mr-4">
-              <Button variant="outline\" size="sm">
+              <Button variant="outline" size="sm">
                 <Play className="h-4 w-4 mr-2" />
                 Preview
               </Button>
@@ -36,7 +36,7 @@ export function Header() {
               </Button>
             </div>
           )}
-          
+
           <Button
             variant="ghost"
             size="icon"

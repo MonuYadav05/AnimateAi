@@ -33,7 +33,7 @@ export function VideoPlayer() {
       console.error('Error fetching animation:', error);
       return;
     }
-
+    console.log(data)
     if (data && data.length > 0) {
       setCurrentAnimation(data[0]);
     }
@@ -120,17 +120,17 @@ export function VideoPlayer() {
               {currentAnimation ? 'Latest generated animation' : 'No animations yet'}
             </CardDescription>
           </div>
-          
+
           {currentAnimation && (
             <div className="flex items-center gap-2">
               <Badge className={getStatusIcon(currentAnimation.status) ? getStatusColor(currentAnimation.status) : ''}>
                 {getStatusIcon(currentAnimation.status)}
                 <span className="ml-2 capitalize">{currentAnimation.status}</span>
               </Badge>
-              
-              <Button 
-                variant="outline" 
-                size="sm" 
+
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleRerender}
                 disabled={isLoading}
               >
@@ -145,17 +145,23 @@ export function VideoPlayer() {
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="flex-1">
         {currentAnimation ? (
           <div className="space-y-4">
             {currentAnimation.video_url ? (
               <div className="aspect-video bg-black rounded-lg overflow-hidden">
                 <video
-                  src={currentAnimation.video_url}
+                  key={currentAnimation.video_url}
+                  src={`https://vehcctitsmwglccncynx.supabase.co/storage/v1/object/public/videos/${currentAnimation.video_url}`}
                   controls
                   className="w-full h-full"
                   poster="/api/placeholder/800/450"
+                  onError={(e) => {
+                    console.error('Video playback error:', e);
+                    const video = e.target as HTMLVideoElement;
+                    console.log('Video URL:', video.src);
+                  }}
                 >
                   Your browser does not support the video tag.
                 </video>
@@ -187,7 +193,7 @@ export function VideoPlayer() {
                 </div>
               </div>
             )}
-            
+
             {currentAnimation.manim_code && (
               <div className="space-y-2">
                 <h4 className="font-medium">Generated Manim Code:</h4>

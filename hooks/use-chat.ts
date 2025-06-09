@@ -23,18 +23,27 @@ export function useChat(projectId: string | null) {
   }, [projectId, setMessages]);
 
   const fetchMessages = async (projectId: string) => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('created_at', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: true });
 
-    if (error) {
-      console.error('Error fetching messages:', error);
-      return;
+      if (error) {
+        console.error('Error fetching messages:', error);
+        return;
+      }
+
+      // Ensure messages are sorted by created_at timestamp
+      const sortedMessages = data?.sort((a, b) => 
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      ) || [];
+
+      setMessages(sortedMessages);
+    } catch (error) {
+      console.error('Error in fetchMessages:', error);
     }
-
-    setMessages(data || []);
   };
 
   const sendMessage = async (content: string) => {
@@ -63,7 +72,7 @@ export function useChat(projectId: string | null) {
       }
 
       addMessage(userMessage);
-        console.log("senfing ")
+
       // Send to LLM API
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -75,7 +84,7 @@ export function useChat(projectId: string | null) {
           messages: [...messages, userMessage],
         }),
       });
-      console.log("response" , response)
+
       if (!response.ok) {
         throw new Error('Failed to get AI response');
       }
