@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+__pycache__ 
+media
+renders
 # next.js
 /.next/
 /out/

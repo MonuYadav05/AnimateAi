@@ -1,0 +1,4 @@
+manim
+supabase
+python-dotenv
+psycopg2-binary
