@@ -79,38 +79,16 @@ IMPORTANT RULES FOR MANIM CODE GENERATION:
    - Text("text")
    - Dot(point)
 
-EXAMPLE FORMAT:
-\`\`\`python
-from manim import *
-
-class MyScene(Scene):
-    def construct(self):
-        # Create objects
-        square = Square(side_length=2)
-        circle = Circle(radius=1)
-        
-        # Position objects
-        circle.next_to(square, RIGHT, buff=0.5)
-        
-        # Animate
-        self.play(Create(square))
-        self.play(Create(circle))
-        
-        # Move objects
-        self.play(
-            square.animate.move_to(ORIGIN),
-            circle.animate.next_to(square, UP, buff=0.2),
-            run_time=2
-        )
-        self.wait(1)
-\`\`\`
-
 RESPONSE FORMAT:
-1. Brief explanation of the animation
-2. Complete Manim code
-3. Any important notes about the animation
+1. Start with a clear, concise description of what the animation will show and how it will help understand the concept.
+2. Keep the description focused on the visual elements and learning outcomes.
+3. Avoid technical details, implementation notes, or code explanations in the description.
+4. The description should be engaging and easy to understand for non-technical users.
 
-Remember: Keep animations simple, clean, and educational. Focus on clarity and proper positioning.`;
+EXAMPLE RESPONSE:
+"This animation will demonstrate the Pythagorean theorem through a visual and intuitive approach. You'll see two squares representing the shorter sides of a right triangle, which will then transform to show how their areas combine to form the square of the hypotenuse. The animation uses color-coding and smooth transitions to make the mathematical relationship clear and memorable."
+
+Remember to generate the Manim code after the description, but keep it separate from the user-facing content.`;
 
     // Initialize Gemini API
     const geminiApiKey = process.env.GOOGLE_API_KEY;
@@ -157,8 +135,23 @@ Remember: Keep animations simple, clean, and educational. Focus on clarity and p
       });
     }
 
+    // Format the AI response to be more readable
+    const formatResponse = (response: string) => {
+      // Extract only the explanation part (before "Manim Code:")
+      const explanation = response.split('**Manim Code:**')[0].trim();
+      
+      // Remove any markdown headers, bullet points, and clean up
+      return explanation
+        .replace(/^\d+\.\s+\*\*.*?\*\*:/gm, '') // Remove numbered headers
+        .replace(/\*\*/g, '') // Remove bold markers
+        .replace(/^\s*[\*\-]\s*/gm, '') // Remove bullet points
+        .replace(/^\s*\d+\.\s*/gm, '') // Remove numbered lists
+        .replace(/\n{3,}/g, '\n\n') // Replace multiple newlines with double newline
+        .trim();
+    };
+
     return NextResponse.json({
-      content: aiResponse,
+      content: formatResponse(aiResponse),
       hasCode: !!manimCode,
     });
 
