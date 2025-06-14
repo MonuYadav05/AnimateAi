@@ -3,8 +3,9 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Message } from '@/lib/supabase/types';
-import { Bot, User } from 'lucide-react';
+import { Bot, User, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAppStore } from '@/lib/store/app-store';
 
 interface ChatMessageProps {
   message: Message;
@@ -12,46 +13,91 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ message, isGenerating = false }: ChatMessageProps) {
+  const { setCurrentAnimation } = useAppStore();
   const isUser = message.role === 'user';
 
+  const handleClick = async () => {
+    if (isUser || isGenerating) return;
+
+    try {
+      const response = await fetch(`/api/animations/latest?projectId=${message.project_id}`);
+      if (!response.ok) throw new Error('Failed to fetch animation');
+
+      const animation = await response.json();
+      if (animation) {
+        setCurrentAnimation(animation);
+      }
+    } catch (error) {
+      console.error('Error fetching animation:', error);
+    }
+  };
+
+  const formatMessage = (content: string) => {
+    // Remove code blocks, headers, and bullet points
+    const cleanContent = content
+      .replace(/```[\s\S]*?```/g, '') // Remove code blocks
+      .replace(/^\s*[\*\-]\s*/gm, '') // Remove bullet points
+      .replace(/^\s*\d+\.\s*/gm, '') // Remove numbered lists
+      .replace(/\*\*.*?\*\*:/g, '') // Remove markdown headers
+      .replace(/\*\*/g, '') // Remove remaining bold markers
+      .replace(/\n{3,}/g, '\n\n') // Replace multiple newlines with double newline
+      .trim();
+
+    // Split into paragraphs and remove empty lines
+    return cleanContent
+      .split('\n')
+      .filter(line => line.trim())
+      .map((line, index) => (
+        <p key={index} className="mb-2 last:mb-0">
+          {line}
+        </p>
+      ));
+  };
+
   return (
-    <div className={cn('flex gap-3', isUser ? 'justify-end' : 'justify-start')}>
+    <div className={cn('flex gap-4', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
-        <Avatar className="h-8 w-8 shrink-0">
-          <AvatarFallback className="bg-blue-600 text-white">
-            <Bot className="h-4 w-4" />
+        <Avatar className="h-10 w-10 shrink-0 ring-2 ring-blue-400/30 shadow-glow">
+          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+            <Bot className="h-5 w-5" />
           </AvatarFallback>
         </Avatar>
       )}
-      
-      <Card className={cn(
-        'max-w-[70%] transition-all',
-        isUser 
-          ? 'bg-blue-600 text-white border-blue-600' 
-          : 'bg-muted/50'
-      )}>
-        <CardContent className="p-3">
+
+      <Card
+        className={cn(
+          'max-w-[75%] transition-all duration-300 shadow-glow',
+          isUser
+            ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white border-blue-400/30'
+            : 'glass-effect border-white/20 text-white hover:bg-white/10 cursor-pointer'
+        )}
+        onClick={handleClick}
+      >
+        <CardContent className="p-4">
           {isGenerating ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
               </div>
-              <span className="text-sm text-muted-foreground">AI is thinking...</span>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-blue-400 animate-pulse" />
+                <span className="text-sm text-slate-300 font-medium">AI is crafting your animation...</span>
+              </div>
             </div>
           ) : (
-            <div className="prose prose-sm max-w-none dark:prose-invert">
-              <p className="whitespace-pre-wrap">{message.content}</p>
+            <div className="prose prose-sm max-w-none dark:prose-invert prose-p:text-inherit prose-headings:text-inherit prose-strong:text-inherit">
+              {formatMessage(message.content)}
             </div>
           )}
         </CardContent>
       </Card>
-      
+
       {isUser && (
-        <Avatar className="h-8 w-8 shrink-0">
-          <AvatarFallback className="bg-green-600 text-white">
-            <User className="h-4 w-4" />
+        <Avatar className="h-10 w-10 shrink-0 ring-2 ring-green-400/30 shadow-glow">
+          <AvatarFallback className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+            <User className="h-5 w-5" />
           </AvatarFallback>
         </Avatar>
       )}
