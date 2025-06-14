@@ -10,29 +10,25 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 export default function Home() {
   return (
     <ProtectedRoute>
-      <div className="h-screen w-full flex overflow-hidden">
+      <div className="h-screen flex bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
         {/* Sidebar */}
         <Sidebar />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col">
           <Header />
 
-          <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
+          <ResizablePanelGroup direction="horizontal" className="flex-1">
             {/* Chat Interface */}
-            <ResizablePanel defaultSize={60} minSize={40} className="overflow-hidden">
-              <div className="h-full overflow-auto">
-                <ChatInterface />
-              </div>
+            <ResizablePanel defaultSize={60} minSize={40}>
+              <ChatInterface />
             </ResizablePanel>
 
-            <ResizableHandle withHandle />
+            <ResizableHandle withHandle className="bg-white/10 hover:bg-white/20 transition-colors duration-200" />
 
             {/* Video Player */}
-            <ResizablePanel defaultSize={40} minSize={30} className="overflow-hidden">
-              <div className="h-full overflow-auto">
-                <VideoPlayer />
-              </div>
+            <ResizablePanel defaultSize={40} minSize={30}>
+              <VideoPlayer />
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>
