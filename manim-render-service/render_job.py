@@ -24,10 +24,10 @@ def render_video(code: str, render_id: str) -> str:
         f.write(code)
 
     try:
-        subprocess.run(["manim", filename, scene_name, "-o", f"{render_id}.mp4", "-qk"], check=True)
+        subprocess.run(["manim", filename, scene_name, "-o", f"{render_id}.mp4", "-qh"], check=True)
         
         # Find the rendered video file
-        video_pattern = os.path.join("media", "videos", "**", "2160p60", f"{render_id}.mp4")
+        video_pattern = os.path.join("media", "videos", "**", "1080p60", f"{render_id}.mp4")
         video_files = glob.glob(video_pattern, recursive=True)
         
         if not video_files:
