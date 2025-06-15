@@ -10,8 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        'inter': ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
-        'montserrat': ['var(--font-montserrat)', 'Montserrat', 'system-ui', 'sans-serif'],
+        'poppins': ['var(--font-poppins)', 'Poppins', 'system-ui', 'sans-serif'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
