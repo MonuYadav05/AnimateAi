@@ -1,19 +1,14 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter, Montserrat } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { SupabaseProvider } from '@/components/providers/supabase-provider';
 import { Toaster } from '@/components/ui/sonner';
 
-const inter = Inter({
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  variable: '--font-montserrat',
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
   display: 'swap',
 });
 
@@ -29,12 +24,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${montserrat.variable} font-inter antialiased`}>
+      <body className={`${poppins.variable} font-poppins`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
+          enableSystem={false}
+          storageKey="animateai-theme"
         >
           <SupabaseProvider>
             {children}
