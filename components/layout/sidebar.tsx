@@ -97,7 +97,7 @@ export function Sidebar() {
               </div>
               <div className="space-y-3">
                 <Label htmlFor="project-description" className="text-slate-200 font-medium">Description (Optional)</Label>
-                <Textarea
+                <Input
                   id="project-description"
                   placeholder="Describe what you want to animate..."
                   value={projectDescription}

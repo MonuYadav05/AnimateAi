@@ -3,9 +3,10 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Message } from '@/lib/supabase/types';
-import { Bot, User, Sparkles } from 'lucide-react';
+import { Bot, User, Sparkles, Play, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/lib/store/app-store';
+import { useState } from 'react';
 
 interface ChatMessageProps {
   message: Message;
@@ -14,21 +15,39 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message, isGenerating = false }: ChatMessageProps) {
   const { setCurrentAnimation } = useAppStore();
+  const [isLoading, setIsLoading] = useState(false);
   const isUser = message.role === 'user';
 
   const handleClick = async () => {
-    if (isUser || isGenerating) return;
+    if (isUser || isGenerating || isLoading) return;
 
+    setIsLoading(true);
     try {
-      const response = await fetch(`/api/animations/latest?projectId=${message.project_id}`);
-      if (!response.ok) throw new Error('Failed to fetch animation');
-
-      const animation = await response.json();
-      if (animation) {
-        setCurrentAnimation(animation);
+      // Fetch the animation that was generated for this message
+      const response = await fetch(`/api/animations/by-message?messageId=${message.id}`);
+      if (!response.ok) {
+        const data = await response.json();
+        if (response.status === 404) {
+          // No animation found for this message, try getting the latest animation
+          const latestResponse = await fetch(`/api/animations/latest?projectId=${message.project_id}`);
+          if (!latestResponse.ok) throw new Error('Failed to fetch latest animation');
+          const animation = await latestResponse.json();
+          if (animation) {
+            setCurrentAnimation(animation);
+          }
+        } else {
+          throw new Error(data.error || 'Failed to fetch animation');
+        }
+      } else {
+        const animation = await response.json();
+        if (animation) {
+          setCurrentAnimation(animation);
+        }
       }
     } catch (error) {
       console.error('Error fetching animation:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,7 +85,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
 
       <Card
         className={cn(
-          'max-w-[75%] transition-all duration-300 shadow-glow',
+          'max-w-[75%] transition-all duration-300 shadow-glow group relative',
           isUser
             ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white border-blue-400/30'
             : 'glass-effect border-white/20 text-white hover:bg-white/10 cursor-pointer'
@@ -89,6 +108,21 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
           ) : (
             <div className="prose prose-sm max-w-none dark:prose-invert prose-p:text-inherit prose-headings:text-inherit prose-strong:text-inherit">
               {formatMessage(message.content)}
+              {!isUser && !isGenerating && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading animation...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4" />
+                      <span>Click to play animation</span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </CardContent>

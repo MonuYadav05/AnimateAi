@@ -205,7 +205,7 @@ export function VideoPlayer() {
                   <Code className="h-5 w-5 text-purple-400" />
                   <h4 className="font-semibold text-white">Generated Manim Code</h4>
                 </div>
-                <div className="glass-effect border-white/20 rounded-xl p-4 overflow-hidden">
+                <div className="glass-effect h-80 border-white/20 rounded-xl p-4 overflow-y-auto">
                   <pre className="text-sm overflow-x-auto scrollbar-thin text-slate-300 leading-relaxed">
                     <code>{currentAnimation.manim_code}</code>
                   </pre>
