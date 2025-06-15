@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic';
+
+// Create Supabase client with service role key
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +45,8 @@ IMPORTANT RULES FOR MANIM CODE GENERATION:
 1. NEVER use LaTeX or MathTex:
    - Use Text() with Unicode characters for mathematical expressions
    - Example: Text("a² + b² = c²") instead of MathTex("a^2 + b^2 = c^2")
+   - For NumberLine, do NOT use include_numbers=True - create numbers manually with Text()
+   - For graphs, use ParametricFunction or FunctionGraph instead of MathTex
 
 2. POSITIONING RULES:
    - Use ONLY these positioning methods:
@@ -63,6 +71,9 @@ IMPORTANT RULES FOR MANIM CODE GENERATION:
      * mobject.animate.shift(vector)
      * mobject.animate.next_to(mobject, direction)
    - Always specify run_time for complex animations
+   - For graphs, use Create() with rate_func=linear for smooth drawing
+   - NEVER use move_along_path or similar path-following methods
+   - For moving objects along curves, use point_from_proportion and move_to
 
 4. CODE STRUCTURE:
    - Single Scene class
@@ -78,6 +89,21 @@ IMPORTANT RULES FOR MANIM CODE GENERATION:
    - Line(start, end)
    - Text("text")
    - Dot(point)
+   - Axes(x_range, y_range)
+   - FunctionGraph(lambda x: f(x), x_range)
+
+6. GRAPH ANIMATION RULES:
+   - Always create axes first with Axes()
+   - Add axis labels using Text()
+   - Create number labels manually using Text()
+   - Use FunctionGraph for plotting functions
+   - For moving points:
+     * Calculate points using point_from_proportion
+     * Use move_to with animate
+     * Update labels using Transform
+   - Keep animations simple and clear
+   - Use appropriate x_range and y_range
+   - Add clear labels and titles
 
 RESPONSE FORMAT:
 1. Start with a clear, concise description of what the animation will show and how it will help understand the concept.
@@ -123,16 +149,26 @@ Remember to generate the Manim code after the description, but keep it separate 
     // Extract Manim code if present
     const codeMatch = aiResponse.match(/```python\n([\s\S]*?)\n```/);
     const manimCode = codeMatch ? codeMatch[1] : null;
-
+    console.log(manimCode)
     // If Manim code was generated, create an animation record
     if (manimCode) {
-      const supabase = createServerSupabaseClient();
-      
-      await supabase.from('animations').insert({
-        project_id: projectId,
-        manim_code: manimCode,
-        status: 'pending',
-      });
+      try {
+        const { data, error } = await supabase.from('animations').insert({
+          project_id: projectId,
+          manim_code: manimCode,
+          status: 'pending',
+        }).select();
+
+        if (error) {
+          console.error('Error storing animation:', error);
+          throw error;
+        }
+
+        console.log('Successfully stored animation:', data);
+      } catch (error) {
+        console.error('Failed to store animation:', error);
+        // Continue with the response even if animation storage fails
+      }
     }
 
     // Format the AI response to be more readable
