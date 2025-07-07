@@ -24,6 +24,7 @@ import {
     X
 } from 'lucide-react';
 import Link from 'next/link';
+import PricingPlans from '@/components/payments/PricingPlans';
 
 export default function LandingPage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -394,42 +395,7 @@ export default function LandingPage() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {pricingPlans.map((plan, index) => (
-                            <Card key={index} className={`glass-effect border-white/20 shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:scale-105 animate-fade-in relative ${plan.popular ? 'ring-2 ring-blue-400/50' : ''
-                                }`} style={{ animationDelay: `${index * 0.1}s` }}>
-                                {plan.popular && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                                        <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1">
-                                            Most Popular
-                                        </Badge>
-                                    </div>
-                                )}
-                                <CardContent className="p-8 text-center">
-                                    <h3 className="text-2xl font-semibold mb-4 text-white">{plan.name}</h3>
-                                    <div className="mb-6">
-                                        <span className="text-4xl font-bold gradient-text">{plan.price}</span>
-                                        {plan.period && <span className="text-slate-400">{plan.period}</span>}
-                                    </div>
-                                    <p className="text-slate-300 mb-8">{plan.description}</p>
-                                    <ul className="space-y-3 mb-8">
-                                        {plan.features.map((feature, featureIndex) => (
-                                            <li key={featureIndex} className="flex items-center text-slate-300">
-                                                <CheckCircle className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                                                {feature}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <Button className={`w-full font-semibold py-3 transition-all duration-200 transform hover:scale-105 ${plan.popular
-                                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-glow'
-                                        : 'bg-white/5 border border-white/20 text-white hover:bg-white/10 hover:border-white/30'
-                                        }`}>
-                                        {plan.name === 'Enterprise' ? 'Contact Sales' : 'Get Started'}
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+                    <PricingPlans />
                 </div>
             </section>
 

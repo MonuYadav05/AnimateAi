@@ -3,17 +3,15 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useProjects } from '@/hooks/use-projects';
 import { useAuth } from '@/hooks/use-auth';
 import { Plus, Settings, LogOut, FolderOpen, Sparkles, Loader2, Calendar, User } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function Sidebar() {
+export function Sidebar({ onSettingsClick }: { onSettingsClick?: () => void }) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
@@ -171,6 +169,7 @@ export function Sidebar() {
           variant="ghost"
           size="sm"
           className="w-full justify-start text-slate-300 hover:text-white hover:bg-white/5 transition-all duration-200"
+          onClick={onSettingsClick}
         >
           <Settings className="h-4 w-4 mr-3" />
           Settings
